@@ -2,265 +2,267 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>bigcat Vowel Monster Game</title>
 
   <style>
-    :root {
-      --bg-color: #fdfdfd;
-      --main-color: #111;
-      --card-bg: #fff;
-      --shadow: rgba(0, 0, 0, 0.12);
+    :root{
+      --bg:#fff;
+      --ink:#111;
+      --shadow: rgba(0,0,0,0.12);
     }
 
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: var(--bg-color);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-        Helvetica, Arial, sans-serif;
+    html,body{
+      margin:0; padding:0;
+      width:100%; height:100%;
+      overflow:hidden;
+      background:var(--bg);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
       touch-action: manipulation;
     }
 
-    #game-stage {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      background: #fff;
-      overflow: hidden;
-      /* ✅ 하단 캐릭터 영역만큼 여유 */
-      padding-bottom: 190px;
-      box-sizing: border-box;
+    #game-stage{
+      position:relative;
+      width:100vw;
+      height:100vh;
+      overflow:hidden;
+      background:#fff;
+      padding-bottom:190px; /* 캐릭터 바 */
+      box-sizing:border-box;
     }
 
-    /* ✅ 상단 UI: 점수/목숨 + 버튼들 */
-    #score-board {
-      position: absolute;
-      top: 10px;
-      width: 100%;
-      text-align: center;
-      font-size: 22px;
-      font-weight: 900;
-      z-index: 10;
-      color: #111;
-      user-select: none;
-      text-shadow: 0 2px 0 rgba(0,0,0,0.03);
+    /* 상단 UI */
+    #score-board{
+      position:absolute;
+      top:10px;
+      width:100%;
+      text-align:center;
+      font-size:22px;
+      font-weight:900;
+      z-index:10;
+      color:#111;
+      user-select:none;
     }
 
-    #admin-open-btn,
-    #bgm-toggle-btn {
-      position: absolute;
-      top: 10px;
-      z-index: 11;
-      font-size: 12px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 2px solid #111;
-      background: #fff;
-      cursor: pointer;
-      box-shadow: 0 4px 0 rgba(0,0,0,0.08);
+    #admin-open-btn, #bgm-toggle-btn{
+      position:absolute;
+      top:10px;
+      z-index:11;
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:2px solid #111;
+      background:#fff;
+      cursor:pointer;
+      box-shadow:0 4px 0 rgba(0,0,0,0.08);
     }
+    #bgm-toggle-btn{ left:10px; }
+    #admin-open-btn{ right:10px; }
 
-    #bgm-toggle-btn { left: 10px; }
-    #admin-open-btn { right: 10px; }
-
-    .heart { color: #ff4d4d; font-size: 24px; }
-
-    /* ✅ 정답/오답 이펙트 */
-    #result-icon {
-      position: absolute;
-      top: 48%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      font-size: 86px;
-      pointer-events: none;
-      transition: transform 0.2s ease-out, opacity 0.2s ease-out;
-      opacity: 0;
-      z-index: 20;
+    /* 결과 이모지 */
+    #result-icon{
+      position:absolute;
+      top:48%;
+      left:50%;
+      transform:translate(-50%,-50%) scale(0);
+      font-size:86px;
+      pointer-events:none;
+      transition:transform .2s ease-out, opacity .2s ease-out;
+      opacity:0;
+      z-index:20;
       filter: drop-shadow(0 6px 0 rgba(0,0,0,0.08));
     }
 
-    /* ✅ 떨어지는 단어(프레임을 캐릭터 느낌으로) */
-    .word-item {
-      position: absolute;
-      padding: 14px 26px;
-      background: var(--card-bg);
-      border: 5px solid #111;
-      border-radius: 22px;
-      font-weight: 1000;
-      font-size: 22px;
-      cursor: pointer;
-      box-shadow: 0 10px 0 var(--shadow);
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      user-select: none;
-      letter-spacing: 0.5px;
-      transform-origin: center;
+    /* 떨어지는 단어 */
+    .word-item{
+      position:absolute;
+      padding:14px 26px;
+      background:#fff;
+      border:5px solid #111;
+      border-radius:22px;
+      font-weight:1000;
+      font-size:22px;
+      cursor:pointer;
+      box-shadow:0 10px 0 var(--shadow);
+      -webkit-tap-highlight-color:transparent;
+      user-select:none;
+      letter-spacing:.5px;
+      transform-origin:center;
+      pointer-events:auto;
     }
-
-    .word-item:active {
-      transform: translateY(3px) scale(0.98);
-    }
+    .word-item:active{ transform:translateY(3px) scale(.98); }
 
     /* ✅ 하단 캐릭터 바 */
     #characterBar{
-      position: absolute;
-      left: 0; right: 0; bottom: 0;
-      height: 190px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      pointer-events: none; /* 캐릭터가 클릭 방해 X */
-      z-index: 15;
-      background: linear-gradient(to top, rgba(0,0,0,0.03), rgba(0,0,0,0.0));
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height:190px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-end;
+      pointer-events:none;
+      z-index:15;
+      background:linear-gradient(to top, rgba(0,0,0,0.03), rgba(0,0,0,0.0));
     }
 
     #characterWrap{
-      position: relative;
-      width: 260px;
-      height: 190px;
+      position:relative;
+      width:100%;
+      height:190px;
+      pointer-events:none;
     }
 
-    #characterImg{
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 190px;
-      height: auto;
-      filter: drop-shadow(0 10px 0 rgba(0,0,0,0.08));
+    /* ✅ 캐릭터는 좌우 이동하므로 absolute */
+    #character{
+      position:absolute;
+      bottom:0;
+      left:50%;
+      transform:translateX(-50%);
+      width:190px;
+      height:auto;
+      filter:drop-shadow(0 10px 0 rgba(0,0,0,0.08));
+      user-select:none;
+      -webkit-user-drag:none;
+      pointer-events:none;
     }
 
-    /* ✅ 팔(손 뻗기) */
+    /* ✅ 얼굴 이모지 오버레이(입술/해골) */
+    #faceOverlay{
+      position:absolute;
+      bottom:108px;   /* 얼굴 위치 미세 조정 */
+      left:50%;
+      transform:translateX(-50%);
+      font-size:54px;
+      opacity:0;
+      pointer-events:none;
+      filter: drop-shadow(0 4px 0 rgba(0,0,0,0.08));
+      transition: opacity 120ms ease;
+      z-index:2;
+    }
+
+    /* 팔(원하면 유지) */
     #arm{
-      position: absolute;
-      /* 캐릭터 기준 손 시작점(필요하면 수치만 조정) */
-      bottom: 92px;
-      left: 56%;
-      height: 18px;
-      width: 0px;
-      background: #ffd8b0;
-      border: 4px solid #111;
-      border-radius: 999px;
-      transform-origin: left center;
-      opacity: 0;
+      position:absolute;
+      bottom:92px;
+      left:56%;
+      height:18px;
+      width:0px;
+      background:#ffd8b0;
+      border:4px solid #111;
+      border-radius:999px;
+      transform-origin:left center;
+      opacity:0;
+      pointer-events:none;
+      z-index:1;
     }
 
-    /* ✅ 입 벌림 느낌(살짝 흔들) */
-    .chomp {
-      animation: chomp 240ms ease-in-out;
-    }
-    @keyframes chomp {
-      0%   { transform: translateX(-50%) scale(1); }
-      35%  { transform: translateX(-50%) scale(1.03) rotate(-2deg); }
-      70%  { transform: translateX(-50%) scale(1.03) rotate(2deg); }
-      100% { transform: translateX(-50%) scale(1); }
-    }
-
-    /* ✅ 관리자 모달 */
-    #admin-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.35);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 30;
+    /* 드래그 가능한 영역 표시(안 보이게) */
+    #dragPad{
+      position:absolute;
+      left:0; right:0;
+      bottom:0;
+      height:190px;
+      pointer-events:auto; /* ✅ 여기는 드래그 받기 */
+      background:transparent;
+      z-index:16; /* 캐릭터바 위에서 드래그 */
+      touch-action:none; /* ✅ 드래그 부드럽게 */
     }
 
-    #admin-panel {
-      background: #fff;
-      border-radius: 14px;
-      max-width: 480px;
-      width: 92%;
-      padding: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      font-size: 14px;
-      border: 2px solid rgba(0,0,0,0.08);
+    /* 관리자 모달 */
+    #admin-modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.35);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:30;
     }
 
-    #admin-panel h2 { margin: 0 0 8px; font-size: 18px; }
-    #admin-panel h3 { margin: 12px 0 4px; font-size: 14px; }
-    #admin-panel small { color: #666; }
+    #admin-panel{
+      background:#fff;
+      border-radius:14px;
+      max-width:480px;
+      width:92%;
+      padding:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.2);
+      font-size:14px;
+      border:2px solid rgba(0,0,0,0.08);
+    }
+    #admin-panel h2{ margin:0 0 8px; font-size:18px; }
+    #admin-panel h3{ margin:12px 0 4px; font-size:14px; }
+    #admin-panel small{ color:#666; }
 
-    .admin-textarea {
-      width: 100%;
-      height: 100px;
-      margin-top: 4px;
-      box-sizing: border-box;
-      font-family: inherit;
-      font-size: 13px;
-      padding: 8px;
-      border-radius: 10px;
-      border: 2px solid #111;
-      outline: none;
+    .admin-textarea{
+      width:100%;
+      height:100px;
+      margin-top:4px;
+      box-sizing:border-box;
+      font-family:inherit;
+      font-size:13px;
+      padding:8px;
+      border-radius:10px;
+      border:2px solid #111;
+      outline:none;
     }
 
-    #admin-note {
-      margin-top: 6px;
-      font-size: 12px;
-      color: #444;
-      line-height: 1.4;
+    #admin-note{
+      margin-top:6px;
+      font-size:12px;
+      color:#444;
+      line-height:1.4;
     }
 
-    #admin-buttons {
-      margin-top: 10px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
+    #admin-buttons{
+      margin-top:10px;
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
     }
 
-    #admin-buttons button {
-      padding: 8px 12px;
-      font-size: 13px;
-      border-radius: 10px;
-      border: 2px solid #111;
-      cursor: pointer;
-      font-weight: 800;
-      box-shadow: 0 6px 0 rgba(0,0,0,0.08);
-      background: #fff;
+    #admin-buttons button{
+      padding:8px 12px;
+      font-size:13px;
+      border-radius:10px;
+      border:2px solid #111;
+      cursor:pointer;
+      font-weight:800;
+      box-shadow:0 6px 0 rgba(0,0,0,0.08);
+      background:#fff;
     }
 
-    #admin-save-btn {
-      background: #4caf50;
-      color: #fff;
-      border-color: #4caf50;
+    #admin-save-btn{
+      background:#4caf50;
+      color:#fff;
+      border-color:#4caf50;
+    }
+    #admin-close-btn{ background:#eee; }
+
+    #vowel-select-row{
+      margin-bottom:6px;
+      font-size:13px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
     }
 
-    #admin-close-btn { background: #eee; }
-
-    /* ✅ 모음 선택 배너 */
-    #vowel-select-row {
-      margin-bottom: 6px;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+    #vowel-select-row select{
+      font-size:13px;
+      padding:4px 8px;
+      border-radius:10px;
+      border:2px solid #111;
+      font-weight:800;
     }
 
-    #vowel-select-row select {
-      font-size: 13px;
-      padding: 4px 8px;
-      border-radius: 10px;
-      border: 2px solid #111;
-      font-weight: 800;
-    }
-
-    #custom-vowel-input {
-      width: 36px;
-      text-transform: uppercase;
-      text-align: center;
-      border-radius: 10px;
-      border: 2px solid #111;
-      padding: 4px 6px;
-      font-weight: 900;
+    #custom-vowel-input{
+      width:36px;
+      text-transform:uppercase;
+      text-align:center;
+      border-radius:10px;
+      border:2px solid #111;
+      padding:4px 6px;
+      font-weight:900;
     }
   </style>
 </head>
@@ -268,21 +270,23 @@
 <body>
   <div id="game-stage">
     <div id="score-board">
-      SCORE: <span id="score">0</span>
-      <br />
+      SCORE: <span id="score">0</span><br/>
       <span id="lives">❤️❤️❤️</span>
     </div>
 
     <button id="bgm-toggle-btn">🔊 BGM</button>
     <button id="admin-open-btn">관리자</button>
 
-    <!-- ✅ 하단 캐릭터 (이미지로 교체) -->
+    <!-- ✅ 하단 캐릭터 -->
     <div id="characterBar">
       <div id="characterWrap">
-        <!-- 🔥 파일명만 맞춰 업로드하세요: character.jpg (또는 png로 바꾸면 여기 src도 변경) -->
-        <img id="characterImg" src="character.jpg" alt="character" />
+        <div id="faceOverlay">💋</div>
+        <img id="character" src="character.jpg" alt="character">
         <div id="arm"></div>
       </div>
+
+      <!-- ✅ 드래그 패드 (손가락으로 좌우 이동) -->
+      <div id="dragPad" aria-label="drag to move"></div>
     </div>
 
     <div id="result-icon"></div>
@@ -290,8 +294,8 @@
 
   <!-- 효과음 + 배경 음악 -->
   <audio id="sfx-correct" src="correct.mp3" preload="auto"></audio>
-  <audio id="sfx-wrong" src="wrong.mp3" preload="auto"></audio>
-  <audio id="bgm-audio" src="bgm_happy.mp3" preload="auto" loop></audio>
+  <audio id="sfx-wrong"   src="wrong.mp3" preload="auto"></audio>
+  <audio id="bgm-audio"   src="bgm_happy.mp3" preload="auto" loop></audio>
 
   <!-- 관리자 모달 -->
   <div id="admin-modal">
@@ -320,8 +324,8 @@
       <textarea id="other-textarea" class="admin-textarea"></textarea>
 
       <div id="admin-note">
-        · 타겟 단어: 선택한 모음이 들어 있는 단어 (먹으면 정답 처리)<br />
-        · 기타 단어: 그 모음이 없는 단어 (잘못 누르면 오답 처리)
+        · 타겟 단어: 선택한 모음이 들어 있는 단어 (만나면 정답 처리)<br />
+        · 기타 단어: 그 모음이 없는 단어 (만나면 오답 처리)
       </div>
 
       <div id="admin-buttons">
@@ -353,10 +357,12 @@
     const wrongSound = document.getElementById('sfx-wrong');
     const bgmAudio = document.getElementById('bgm-audio');
 
-    // ✅ 캐릭터 요소
+    // 캐릭터 이동 요소
     const characterWrap = document.getElementById('characterWrap');
-    const characterImg = document.getElementById('characterImg');
+    const characterImg = document.getElementById('character');
+    const faceOverlay = document.getElementById('faceOverlay');
     const arm = document.getElementById('arm');
+    const dragPad = document.getElementById('dragPad');
 
     let soundEnabled = false;
     let bgmEnabled = true;
@@ -366,101 +372,83 @@
     let isGameOver = false;
     let gameTimer = null;
 
-    // 기본값: A 게임
+    // 모음 세팅
     let currentVowel = 'A';
 
     const defaultWordSets = {
-      A: {
-        target: ["APPLE","ANT","AX","ALLIGATOR","AQUA","BANANA","CAKE","DANCE","EAGLE","FACE","GAME"],
-        other: ["BLUE","DOG","FISH","ICE","MOON","SUN","TREE","RED","PIG","HEN"]
-      },
-      E: {
-        target: ["EGG","ELEPHANT","ENVELOPE","ENGINE","EEL","BED","LEG","TEETH","SHEEP","RED","PEN","NET","WEB"],
-        other: ["DOG","CAT","SUN","MOON","PIG","BUS","CUP","HAT","BOOK"]
-      },
-      I: {
-        target: ["INK","IGLOO","INSECT","ITALY","IRON","PIG","FISH","MILK","KING","HILL","LIP","RING","ZIP"],
-        other: ["DOG","CAT","SUN","MOON","BED","CUP","BALL","FOX","DUCK"]
-      },
-      O: {
-        target: ["OCTOPUS","ORANGE","OSTRICH","ONION","OLIVE","DOG","BOX","FROG","CORN","DOT","POT","TOP","MOP","ROCK"],
-        other: ["CAT","PEN","TREE","HILL","SUN","BEE","MILK","FAN","CUP"]
-      },
-      U: {
-        target: ["UMBRELLA","UNICORN","UP","UNDER","USB","SUN","BUS","CUP","BUG","MUD","NUT","GUM","TUB","PUP"],
-        other: ["DOG","CAT","BED","PEN","MOON","TREE","FOX","PIG","HAT"]
-      }
+      A: { target:["APPLE","ANT","AX","ALLIGATOR","AQUA","BANANA","CAKE","DANCE","EAGLE","FACE","GAME"],
+           other:["BLUE","DOG","FISH","ICE","MOON","SUN","TREE","RED","PIG","HEN"] },
+      E: { target:["EGG","ELEPHANT","ENVELOPE","ENGINE","EEL","BED","LEG","TEETH","SHEEP","RED","PEN","NET","WEB"],
+           other:["DOG","CAT","SUN","MOON","PIG","BUS","CUP","HAT","BOOK"] },
+      I: { target:["INK","IGLOO","INSECT","ITALY","IRON","PIG","FISH","MILK","KING","HILL","LIP","RING","ZIP"],
+           other:["DOG","CAT","SUN","MOON","BED","CUP","BALL","FOX","DUCK"] },
+      O: { target:["OCTOPUS","ORANGE","OSTRICH","ONION","OLIVE","DOG","BOX","FROG","CORN","DOT","POT","TOP","MOP","ROCK"],
+           other:["CAT","PEN","TREE","HILL","SUN","BEE","MILK","FAN","CUP"] },
+      U: { target:["UMBRELLA","UNICORN","UP","UNDER","USB","SUN","BUS","CUP","BUG","MUD","NUT","GUM","TUB","PUP"],
+           other:["DOG","CAT","BED","PEN","MOON","TREE","FOX","PIG","HAT"] },
     };
 
     let targetWords = [];
     let otherWords = [];
-
     const STORAGE_KEY = 'vowel_monster_settings';
 
-    function loadSettings() {
+    function loadSettings(){
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
+      if(saved){
+        try{
           const obj = JSON.parse(saved);
-          if (obj) {
-            if (obj.vowel) currentVowel = obj.vowel;
-            if (obj.wordSets && obj.wordSets[currentVowel]) {
+          if(obj){
+            if(obj.vowel) currentVowel = obj.vowel;
+            if(obj.wordSets && obj.wordSets[currentVowel]){
               targetWords = obj.wordSets[currentVowel].target || [];
-              otherWords = obj.wordSets[currentVowel].other || [];
+              otherWords  = obj.wordSets[currentVowel].other  || [];
             }
           }
-        } catch (e) {}
+        }catch(e){}
       }
-
-      if (!targetWords.length || !otherWords.length) {
+      if(!targetWords.length || !otherWords.length){
         const base = defaultWordSets[currentVowel] || defaultWordSets.A;
         targetWords = base.target.slice();
-        otherWords = base.other.slice();
+        otherWords  = base.other.slice();
       }
-
-      if (['A','E','I','O','U'].includes(currentVowel)) {
+      if(['A','E','I','O','U'].includes(currentVowel)){
         vowelSelect.value = currentVowel;
         customVowelInput.value = '';
-      } else {
+      }else{
         vowelSelect.value = 'CUSTOM';
         customVowelInput.value = currentVowel;
       }
     }
 
-    function saveSettings() {
+    function saveSettings(){
       let data = { vowel: currentVowel, wordSets: {} };
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
+      if(saved){
+        try{
           const obj = JSON.parse(saved);
-          if (obj && obj.wordSets) data.wordSets = obj.wordSets;
-        } catch (e) {}
+          if(obj && obj.wordSets) data.wordSets = obj.wordSets;
+        }catch(e){}
       }
       data.wordSets[currentVowel] = { target: targetWords, other: otherWords };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
-    function openAdminModal() {
+    function openAdminModal(){
       targetTextarea.value = targetWords.join('\n');
-      otherTextarea.value = otherWords.join('\n');
+      otherTextarea.value  = otherWords.join('\n');
       adminModal.style.display = 'flex';
     }
-
-    function closeAdminModal() {
-      adminModal.style.display = 'none';
-    }
-
+    function closeAdminModal(){ adminModal.style.display = 'none'; }
     adminOpenBtn.addEventListener('click', openAdminModal);
     adminCloseBtn.addEventListener('click', closeAdminModal);
 
     vowelSelect.addEventListener('change', () => {
       const sel = vowelSelect.value;
-      if (sel === 'CUSTOM') {
+      if(sel === 'CUSTOM'){
         customVowelInput.focus();
-      } else {
+      }else{
         currentVowel = sel;
-        targetWords = [];
-        otherWords = [];
+        targetWords = []; otherWords = [];
         loadSettings();
         targetTextarea.value = targetWords.join('\n');
         otherTextarea.value = otherWords.join('\n');
@@ -468,13 +456,12 @@
     });
 
     customVowelInput.addEventListener('input', () => {
-      let v = customVowelInput.value.toUpperCase().replace(/[^A-Z]/g, '');
-      if (v.length > 1) v = v[0];
+      let v = customVowelInput.value.toUpperCase().replace(/[^A-Z]/g,'');
+      if(v.length > 1) v = v[0];
       customVowelInput.value = v;
-      if (v) {
+      if(v){
         currentVowel = v;
-        targetWords = [];
-        otherWords = [];
+        targetWords = []; otherWords = [];
         loadSettings();
         targetTextarea.value = targetWords.join('\n');
         otherTextarea.value = otherWords.join('\n');
@@ -482,150 +469,197 @@
     });
 
     adminSaveBtn.addEventListener('click', () => {
-      const tLines = targetTextarea.value
-        .split('\n')
-        .map(v => v.trim().toUpperCase())
-        .filter(v => v.length > 0);
-      const oLines = otherTextarea.value
-        .split('\n')
-        .map(v => v.trim().toUpperCase())
-        .filter(v => v.length > 0);
+      const tLines = targetTextarea.value.split('\n').map(v=>v.trim().toUpperCase()).filter(v=>v);
+      const oLines = otherTextarea.value.split('\n').map(v=>v.trim().toUpperCase()).filter(v=>v);
 
-      if (!tLines.length) { alert('타겟 단어를 최소 1개 이상 입력해주세요.'); return; }
-      if (!oLines.length) { alert('기타 단어를 최소 1개 이상 입력해주세요.'); return; }
+      if(!tLines.length){ alert('타겟 단어를 최소 1개 이상 입력해주세요.'); return; }
+      if(!oLines.length){ alert('기타 단어를 최소 1개 이상 입력해주세요.'); return; }
 
-      targetWords = tLines;
-      otherWords = oLines;
+      targetWords = tLines; otherWords = oLines;
       saveSettings();
       closeAdminModal();
       alert('설정이 저장되었습니다.\n선택한 모음에 맞는 단어로 게임이 진행됩니다.');
     });
 
-    /* ✅ 사운드 잠금 해제 + BGM */
-    function initSoundOnce() {
-      if (soundEnabled) return;
+    /* 사운드 unlock + BGM */
+    function initSoundOnce(){
+      if(soundEnabled) return;
       soundEnabled = true;
 
-      [correctSound, wrongSound, bgmAudio].forEach(a => {
-        if (!a) return;
+      [correctSound, wrongSound, bgmAudio].forEach(a=>{
+        if(!a) return;
         a.volume = (a === bgmAudio) ? 0.4 : 1.0;
       });
 
-      // unlock
-      [correctSound, wrongSound, bgmAudio].forEach(a => {
-        if (!a) return;
-        a.play().then(() => {
+      [correctSound, wrongSound, bgmAudio].forEach(a=>{
+        if(!a) return;
+        a.play().then(()=>{
           a.pause();
           a.currentTime = 0;
-        }).catch(() => {});
+        }).catch(()=>{});
       });
 
-      if (bgmEnabled) {
+      if(bgmEnabled){
         bgmAudio.currentTime = 0;
-        bgmAudio.play().catch(() => {});
+        bgmAudio.play().catch(()=>{});
       }
 
       document.removeEventListener('touchstart', initSoundOnce);
       document.removeEventListener('click', initSoundOnce);
     }
-
-    document.addEventListener('touchstart', initSoundOnce, { once: true });
-    document.addEventListener('click', initSoundOnce, { once: true });
+    document.addEventListener('touchstart', initSoundOnce, { once:true });
+    document.addEventListener('click', initSoundOnce, { once:true });
 
     bgmToggleBtn.addEventListener('click', () => {
-      if (!soundEnabled) initSoundOnce();
+      if(!soundEnabled) initSoundOnce();
       bgmEnabled = !bgmEnabled;
-      if (bgmEnabled) {
+      if(bgmEnabled){
         bgmAudio.currentTime = 0;
-        bgmAudio.play().catch(() => {});
+        bgmAudio.play().catch(()=>{});
         bgmToggleBtn.textContent = "🔊 BGM";
-      } else {
+      }else{
         bgmAudio.pause();
         bgmToggleBtn.textContent = "🔈 BGM OFF";
       }
     });
 
-    function playCorrectSound() {
-      if (!soundEnabled || !correctSound) return;
+    function playCorrectSound(){
+      if(!soundEnabled || !correctSound) return;
       correctSound.currentTime = 0;
-      correctSound.play().catch(() => {});
+      correctSound.play().catch(()=>{});
     }
-
-    function playWrongSound() {
-      if (!soundEnabled || !wrongSound) return;
+    function playWrongSound(){
+      if(!soundEnabled || !wrongSound) return;
       wrongSound.currentTime = 0;
-      wrongSound.play().catch(() => {});
+      wrongSound.play().catch(()=>{});
     }
-
-    function showResultIcon(type) {
+    function showResultIcon(type){
       resultIcon.textContent = (type === 'correct') ? '💖' : '💀';
       resultIcon.style.opacity = '1';
       resultIcon.style.transform = 'translate(-50%, -50%) scale(1.2)';
-      setTimeout(() => {
-        resultIcon.style.opacity = '0';
-        resultIcon.style.transform = 'translate(-50%, -50%) scale(0)';
+      setTimeout(()=>{
+        resultIcon.style.opacity='0';
+        resultIcon.style.transform='translate(-50%, -50%) scale(0)';
       }, 400);
     }
 
-    /* ✅ 캐릭터가 손 뻗어서 "먹기" 애니메이션 */
-    function eatAnimation(wordNode) {
-      // 캐릭터 흔들(입 벌림 느낌)
-      characterImg.classList.remove('chomp');
-      void characterImg.offsetWidth;
-      characterImg.classList.add('chomp');
+    /* ✅ 얼굴 바꾸기(정답=💋 / 오답=💀) */
+    let faceTimer = null;
+    function setFace(type){
+      // type: 'kiss' | 'skull' | 'clear'
+      if(faceTimer) clearTimeout(faceTimer);
 
-      const wordRect = wordNode.getBoundingClientRect();
-      const charRect = characterWrap.getBoundingClientRect();
-
-      // 팔 시작점(arm 위치)
-      const armStartX = charRect.left + charRect.width * 0.56;
-      const armStartY = charRect.top + charRect.height * 0.52;
-
-      // 목표(단어 가운데)
-      const targetX = wordRect.left + wordRect.width / 2;
-      const targetY = wordRect.top + wordRect.height / 2;
-
-      const dx = targetX - armStartX;
-      const dy = targetY - armStartY;
-
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-      arm.style.opacity = 1;
-      arm.style.transform = `rotate(${angle}deg)`;
-      arm.style.width = `0px`;
-
-      const reachLen = Math.min(dist, 650);
-
-      arm.animate(
-        [{ width: '0px', opacity: 1 }, { width: `${reachLen}px`, opacity: 1 }],
-        { duration: 220, easing: 'ease-out', fill: 'forwards' }
-      );
-
-      // 단어를 캐릭터쪽으로 빨려들어가며 작아지게
-      const toCharX = (armStartX - (wordRect.left + wordRect.width/2));
-      const toCharY = (armStartY - (wordRect.top + wordRect.height/2));
-
-      wordNode.animate(
-        [
-          { transform: 'translate(0px, 0px) scale(1)', opacity: 1 },
-          { transform: `translate(${toCharX}px, ${toCharY}px) scale(0.15)`, opacity: 0.2 }
-        ],
-        { duration: 240, easing: 'ease-in', fill: 'forwards' }
-      );
-
-      // 팔 접기
-      setTimeout(() => {
-        arm.animate(
-          [{ width: `${reachLen}px`, opacity: 1 }, { width: '0px', opacity: 0 }],
-          { duration: 180, easing: 'ease-in', fill: 'forwards' }
-        );
-      }, 260);
+      if(type === 'kiss'){
+        faceOverlay.textContent = '💋';
+        faceOverlay.style.opacity = '1';
+        faceTimer = setTimeout(()=> faceOverlay.style.opacity = '0', 500);
+      }else if(type === 'skull'){
+        faceOverlay.textContent = '💀';
+        faceOverlay.style.opacity = '1';
+        faceTimer = setTimeout(()=> faceOverlay.style.opacity = '0', 650);
+      }else{
+        faceOverlay.style.opacity = '0';
+      }
     }
 
-    function spawnWord() {
-      if (isGameOver) return;
-      if (!targetWords.length || !otherWords.length) return;
+    /* ✅ 캐릭터 좌우 이동 (드래그 + 방향키) */
+    let charX = window.innerWidth / 2; // 캐릭터 중심 x
+    const charHalf = 95;              // 이미지 절반 폭(190/2)
+    const moveSpeed = 8;              // 키보드 속도
+    let keyLeft = false, keyRight = false;
+
+    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+    function setCharacterX(x){
+      // 화면 밖으로 안 나가게
+      const minX = charHalf + 10;
+      const maxX = window.innerWidth - charHalf - 10;
+      charX = clamp(x, minX, maxX);
+      characterImg.style.left = charX + 'px';
+      characterImg.style.transform = 'translateX(-50%)';
+      faceOverlay.style.left = charX + 'px';
+      faceOverlay.style.transform = 'translateX(-50%)';
+      // 팔도 같이 이동(arm은 wrap 기준이므로 left는 그대로 둬도 ok)
+    }
+
+    // 초기 위치 세팅
+    function resetCharacterPosition(){
+      setCharacterX(window.innerWidth / 2);
+    }
+    window.addEventListener('resize', resetCharacterPosition);
+    resetCharacterPosition();
+
+    // 드래그 이동
+    let dragging = false;
+    let dragOffset = 0;
+
+    dragPad.addEventListener('pointerdown', (e)=>{
+      e.preventDefault();
+      dragging = true;
+      if(!soundEnabled) initSoundOnce(); // 드래그 시작도 사용자 제스처라 사운드 unlock 가능
+      // 터치한 지점으로 바로 따라오게(오프셋 0)
+      dragOffset = 0;
+      dragPad.setPointerCapture(e.pointerId);
+    });
+
+    dragPad.addEventListener('pointermove', (e)=>{
+      if(!dragging) return;
+      setCharacterX(e.clientX - dragOffset);
+    });
+
+    dragPad.addEventListener('pointerup', (e)=>{
+      dragging = false;
+      try{ dragPad.releasePointerCapture(e.pointerId); }catch(_){}
+    });
+
+    dragPad.addEventListener('pointercancel', ()=>{
+      dragging = false;
+    });
+
+    // 키보드 이동(PC)
+    window.addEventListener('keydown', (e)=>{
+      if(e.key === 'ArrowLeft') keyLeft = true;
+      if(e.key === 'ArrowRight') keyRight = true;
+      if((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !soundEnabled){
+        initSoundOnce();
+      }
+    });
+    window.addEventListener('keyup', (e)=>{
+      if(e.key === 'ArrowLeft') keyLeft = false;
+      if(e.key === 'ArrowRight') keyRight = false;
+    });
+
+    function keyboardLoop(){
+      if(isGameOver){ requestAnimationFrame(keyboardLoop); return; }
+      if(keyLeft) setCharacterX(charX - moveSpeed);
+      if(keyRight) setCharacterX(charX + moveSpeed);
+      requestAnimationFrame(keyboardLoop);
+    }
+    requestAnimationFrame(keyboardLoop);
+
+    /* ✅ 충돌 체크: 캐릭터가 단어를 "만나면" 처리 */
+    function checkCollision(wordNode){
+      const rect = wordNode.getBoundingClientRect();
+
+      // 캐릭터 입 위치(대충 캐릭터 상단 기준으로)
+      const mouthY = window.innerHeight - 120; // 하단 캐릭터 바 기준(필요하면 조절)
+      const mouthX = charX;
+
+      // 단어 중심
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+
+      const dx = cx - mouthX;
+      const dy = cy - mouthY;
+
+      // 히트 범위(원형)
+      const hitR = 70;
+      return (dx*dx + dy*dy) <= hitR*hitR;
+    }
+
+    function spawnWord(){
+      if(isGameOver) return;
+      if(!targetWords.length || !otherWords.length) return;
 
       const isTarget = Math.random() < 0.5;
       const wordText = isTarget
@@ -635,6 +669,7 @@
       const wordNode = document.createElement('div');
       wordNode.className = 'word-item';
       wordNode.innerText = wordText;
+      wordNode.dataset.isTarget = isTarget ? '1' : '0';
 
       const posX = Math.random() * (window.innerWidth - 160);
       wordNode.style.left = posX + 'px';
@@ -644,8 +679,8 @@
       let currentY = -80;
       const speed = 2 + Math.min(score * 0.1, 6);
 
-      const moveInterval = setInterval(() => {
-        if (isGameOver) {
+      const moveInterval = setInterval(()=>{
+        if(isGameOver){
           clearInterval(moveInterval);
           wordNode.remove();
           return;
@@ -654,61 +689,59 @@
         currentY += speed;
         wordNode.style.top = currentY + 'px';
 
-        // ✅ 하단 캐릭터 영역 위까지만 떨어지게(바닥 충돌)
+        // ✅ 캐릭터와 충돌하면 자동 판정
+        if(checkCollision(wordNode)){
+          handleMeet(wordNode, isTarget);
+          clearInterval(moveInterval);
+          wordNode.remove();
+          return;
+        }
+
+        // 바닥(캐릭터 영역 위) 도달
         const bottomLimit = window.innerHeight - 210;
-        if (currentY > bottomLimit) {
-          if (isTarget) reduceLife();
+        if(currentY > bottomLimit){
+          if(isTarget) reduceLife();
           clearInterval(moveInterval);
           wordNode.remove();
         }
       }, 16);
 
-      function handleWordTap(e) {
+      // 클릭으로도 먹을 수 있게(선택사항) — 원하면 삭제 가능
+      function handleTap(e){
         e.preventDefault();
         e.stopPropagation();
-
-        // ✅ 클릭/터치하면 사운드 unlock + bgm 시작
-        if (!soundEnabled) initSoundOnce();
-
-        // ✅ “먹기” 애니메이션 먼저
-        eatAnimation(wordNode);
-
-        if (isTarget) {
-          score += 10;
-          scoreDisplay.innerText = score;
-          showResultIcon('correct');
-          playCorrectSound();
-        } else {
-          reduceLife();
-          showResultIcon('wrong');
-          playWrongSound();
-        }
-
+        if(!soundEnabled) initSoundOnce();
+        handleMeet(wordNode, isTarget);
         clearInterval(moveInterval);
-
-        // 애니메이션 끝나고 제거
-        setTimeout(() => {
-          wordNode.remove();
-        }, 260);
+        wordNode.remove();
       }
-
-      wordNode.addEventListener('pointerdown', handleWordTap);
-      wordNode.addEventListener('touchstart', handleWordTap);
-      wordNode.addEventListener('click', handleWordTap);
+      wordNode.addEventListener('pointerdown', handleTap);
+      wordNode.addEventListener('touchstart', handleTap);
+      wordNode.addEventListener('click', handleTap);
     }
 
-    function reduceLife() {
+    function handleMeet(wordNode, isTarget){
+      if(isTarget){
+        score += 10;
+        scoreDisplay.innerText = score;
+        showResultIcon('correct');
+        playCorrectSound();
+        setFace('kiss');   // ✅ 정답이면 💋
+      }else{
+        reduceLife();
+        showResultIcon('wrong');
+        playWrongSound();
+        setFace('skull');  // ✅ 오답이면 💀
+      }
+    }
+
+    function reduceLife(){
       lives--;
       livesDisplay.innerText = "❤️".repeat(lives) + "🖤".repeat(3 - lives);
 
-      // 캐릭터 흔들로 피격 느낌
-      characterImg.classList.remove('chomp');
-      void characterImg.offsetWidth;
-      characterImg.classList.add('chomp');
-
-      if (lives <= 0) {
+      if(lives <= 0){
         isGameOver = true;
-        setTimeout(() => {
+        setTimeout(()=>{
           alert("GAME OVER!\n최종 점수: " + score);
           location.reload();
         }, 100);
