@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BeatCat MBTI Slot</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --red:#E8302A;--red-dk:#B5201A;--red-lt:#FF6B5A;
+  --yellow:#FFE033;--yellow-dk:#D4B800;
+  --bg:#FFF5F4;--dark:#1A0A08;
+  --slot-h:88px;
+}
+html,body{width:100%;min-height:100%;background:var(--bg);font-family:'Noto Sans KR',sans-serif;overflow-x:hidden;}
+
+/* ── CONFETTI ── */
+#cvcv{position:fixed;inset:0;pointer-events:none;z-index:9999;}
+
+/* ── HEADER ── */
+.hdr{
+  background:linear-gradient(180deg,#FF4A42 0%,#E8302A 100%);
+  padding:16px 20px 14px;text-align:center;
+  box-shadow:0 4px 0 var(--red-dk);position:relative;
+}
+.hdr::after{content:'';position:absolute;bottom:-14px;left:0;right:0;height:14px;
+  background:var(--red);clip-path:ellipse(52% 100% at 50% 0%);}
+.logo-row{display:flex;align-items:center;justify-content:center;gap:8px;}
+.logo-cat{width:36px;height:36px;background:#fff;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);}
+.logo-txt{font-family:'Black Han Sans',sans-serif;font-size:24px;color:#fff;letter-spacing:1px;}
+.logo-txt .b{color:var(--yellow);}
+.hdr-sub{font-size:11px;color:rgba(255,255,255,.7);letter-spacing:2px;margin-top:3px;}
+
+/* ── BODY ── */
+.body{padding:32px 16px 40px;display:flex;flex-direction:column;align-items:center;gap:20px;}
+
+/* ── MACHINE CABINET ── */
+.machine{
+  width:100%;max-width:420px;
+  background:linear-gradient(160deg,#2A0E0C,#1A0604);
+  border-radius:28px;
+  border:4px solid #5A2018;
+  box-shadow:0 12px 40px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,255,255,.08);
+  overflow:hidden;
+  position:relative;
+}
+/* machine top glow */
+.machine::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--yellow),transparent);
+  animation:scanline 3s linear infinite;
+}
+@keyframes scanline{0%{opacity:.4;}50%{opacity:1;}100%{opacity:.4;}}
+
+/* Machine header strip */
+.machine-hdr{
+  background:linear-gradient(180deg,#3A1208,#2A0A06);
+  padding:14px 20px 12px;text-align:center;
+  border-bottom:2px solid #5A2018;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.machine-title{
+  font-family:'Black Han Sans',sans-serif;
+  font-size:20px;letter-spacing:3px;
+  background:linear-gradient(135deg,var(--yellow),#FFF0A0,var(--yellow));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.machine-light{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--yellow);
+  box-shadow:0 0 8px var(--yellow);
+  animation:blink 1.2s ease-in-out infinite;
+}
+.machine-light.r{background:var(--red-lt);box-shadow:0 0 8px var(--red-lt);}
+@keyframes blink{0%,100%{opacity:.4;}50%{opacity:1;}}
+
+/* ── SLOT WINDOW ── */
+.slot-window{
+  margin:18px 16px;
+  background:#0A0302;
+  border-radius:16px;
+  border:3px solid #3A1008;
+  box-shadow:inset 0 4px 20px rgba(0,0,0,.8);
+  overflow:hidden;
+  position:relative;
+}
+/* Scanline overlay */
+.slot-window::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.15),rgba(0,0,0,.15) 1px,transparent 1px,transparent 3px);
+  z-index:10;
+}
+
+/* 4 reels side by side */
+.reels-row{
+  display:flex;
+  gap:0;
+  height:calc(var(--slot-h) + 4px);
+  position:relative;
+}
+
+/* Center highlight line */
+.reel-highlight{
+  position:absolute;
+  top:50%;left:8px;right:8px;
+  height:var(--slot-h);
+  transform:translateY(-50%);
+  border:3px solid var(--yellow);
+  border-radius:8px;
+  box-shadow:0 0 12px rgba(255,224,51,.5),inset 0 0 20px rgba(255,224,51,.05);
+  pointer-events:none;
+  z-index:20;
+}
+/* Left/right fade mask */
+.slot-window::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:15;
+  background:
+    linear-gradient(180deg,rgba(10,3,2,.9) 0%,transparent 28%,transparent 72%,rgba(10,3,2,.9) 100%);
+}
+
+/* Individual reel */
+.reel{
+  flex:1;
+  overflow:hidden;
+  position:relative;
+  border-right:1px solid #2A0A06;
+}
+.reel:last-child{border-right:none;}
+
+.reel-strip{
+  display:flex;flex-direction:column;
+  will-change:transform;
+  /* JS controls translateY */
+}
+
+.reel-item{
+  height:var(--slot-h);
+  flex-shrink:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:2px;
+  user-select:none;
+}
+.reel-letter{
+  font-family:'Black Han Sans',sans-serif;
+  font-size:40px;
+  line-height:1;
+  text-shadow:0 2px 8px rgba(0,0,0,.6);
+}
+.reel-pair{
+  font-size:9px;font-weight:700;letter-spacing:1px;
+  opacity:.5;text-transform:uppercase;
+}
+
+/* Reel color themes */
+.rc-ei .reel-letter{color:#FF8070;text-shadow:0 0 12px rgba(255,128,112,.4);}
+.rc-sn .reel-letter{color:#FFE033;text-shadow:0 0 12px rgba(255,224,51,.4);}
+.rc-tf .reel-letter{color:#70B4FF;text-shadow:0 0 12px rgba(112,180,255,.4);}
+.rc-jp .reel-letter{color:#70E8A8;text-shadow:0 0 12px rgba(112,232,168,.4);}
+
+/* ── REEL LABELS ── */
+.reel-labels{
+  display:flex;margin:0 16px 10px;gap:0;
+}
+.reel-label{
+  flex:1;text-align:center;
+  font-size:9px;font-weight:700;letter-spacing:2px;
+  color:rgba(255,255,255,.3);text-transform:uppercase;
+}
+
+/* ── CONTROLS ── */
+.controls{
+  padding:14px 20px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+}
+
+/* SPIN button */
+.btn-spin{
+  width:100%;max-width:280px;
+  padding:16px;
+  border-radius:99px;
+  background:linear-gradient(180deg,var(--yellow),#D4B800);
+  border:none;border-bottom:5px solid #A08800;
+  font-family:'Black Han Sans',sans-serif;
+  font-size:20px;letter-spacing:2px;
+  color:#3A2000;cursor:pointer;
+  box-shadow:0 6px 20px rgba(255,224,51,.35);
+  transition:transform .1s,border-bottom-width .1s;
+  position:relative;overflow:hidden;
+}
+.btn-spin::before{
+  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+  animation:shine 2.5s ease-in-out infinite;
+}
+@keyframes shine{0%{left:-100%;}100%{left:200%;}}
+.btn-spin:active{transform:translateY(3px);border-bottom-width:2px;}
+.btn-spin:disabled{background:linear-gradient(180deg,#888,#555);border-bottom-color:#333;color:#aaa;cursor:default;box-shadow:none;}
+.btn-spin:disabled::before{display:none;}
+
+/* STOP buttons row */
+.stop-row{
+  display:flex;gap:8px;width:100%;max-width:320px;
+}
+.btn-stop{
+  flex:1;padding:12px 4px;
+  border-radius:12px;
+  background:linear-gradient(180deg,#FF6B5A,var(--red));
+  border:none;border-bottom:4px solid var(--red-dk);
+  font-family:'Black Han Sans',sans-serif;
+  font-size:13px;letter-spacing:1px;color:#fff;
+  cursor:pointer;
+  box-shadow:0 4px 12px rgba(232,48,42,.4);
+  transition:transform .1s,border-bottom-width .1s,opacity .2s;
+  opacity:0.35;pointer-events:none;
+}
+.btn-stop.active{opacity:1;pointer-events:auto;animation:pulse-stop .6s ease-in-out infinite;}
+.btn-stop.done{opacity:.25;pointer-events:none;background:linear-gradient(180deg,#555,#333);border-bottom-color:#222;box-shadow:none;animation:none;}
+.btn-stop:active{transform:translateY(2px);border-bottom-width:2px;}
+@keyframes pulse-stop{0%,100%{box-shadow:0 4px 12px rgba(232,48,42,.4);}50%{box-shadow:0 4px 20px rgba(232,48,42,.8);}}
+
+/* Stop labels under buttons */
+.stop-label{
+  font-size:9px;color:rgba(255,255,255,.4);text-align:center;
+  margin-top:3px;letter-spacing:1px;
+  font-weight:700;text-transform:uppercase;
+}
+
+/* ── STATUS BAR ── */
+.status-bar{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;padding:8px 16px;
+  font-size:12px;color:rgba(255,255,255,.5);
+  letter-spacing:1px;text-align:center;
+  min-height:36px;transition:all .3s;
+}
+.status-bar.spinning{color:var(--yellow);border-color:rgba(255,224,51,.3);}
+.status-bar.done{color:#70E8A8;border-color:rgba(112,232,168,.3);}
+
+/* ── RESULT CARD ── */
+.result-wrap{
+  width:100%;max-width:420px;
+  animation:slideUp .5s cubic-bezier(.34,1.3,.64,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.result-card{
+  background:#fff;border-radius:24px;
+  border:3px solid var(--red);
+  box-shadow:0 8px 32px rgba(232,48,42,.18);
+  overflow:hidden;
+}
+.result-top{
+  background:linear-gradient(135deg,var(--red),#FF6B5A);
+  padding:20px 20px 16px;text-align:center;
+  position:relative;
+}
+.result-top::after{
+  content:'';position:absolute;bottom:-12px;left:0;right:0;height:12px;
+  background:linear-gradient(135deg,var(--red),#FF6B5A);
+  clip-path:ellipse(52% 100% at 50% 0%);
+}
+.result-mbti{
+  font-family:'Black Han Sans',sans-serif;
+  font-size:52px;letter-spacing:5px;color:#fff;line-height:1;
+  text-shadow:0 4px 12px rgba(0,0,0,.2);
+  animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn{from{transform:scale(.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.result-type-name{
+  font-size:12px;color:rgba(255,255,255,.8);letter-spacing:3px;margin-top:4px;
+  font-weight:700;text-transform:uppercase;
+}
+.result-chips{
+  display:flex;gap:6px;justify-content:center;margin-top:10px;
+}
+.result-chip{
+  padding:4px 12px;border-radius:99px;
+  font-family:'Black Han Sans',sans-serif;font-size:14px;
+  background:rgba(255,255,255,.25);color:#fff;border:1.5px solid rgba(255,255,255,.4);
+}
+
+.result-body{padding:28px 20px 20px;}
+.result-icon{font-size:42px;text-align:center;margin-bottom:8px;}
+.result-activity{
+  font-family:'Black Han Sans',sans-serif;
+  font-size:22px;color:#1A0A08;text-align:center;margin-bottom:6px;
+}
+.result-quote{
+  font-size:13px;color:var(--red);font-weight:700;text-align:center;margin-bottom:12px;
+}
+.result-desc{
+  font-size:13px;color:#555;line-height:1.7;
+  background:#FFF5F4;border-radius:12px;padding:12px 14px;
+  border-left:3px solid var(--red);margin-bottom:16px;
+}
+/* Action buttons */
+.result-actions{display:flex;flex-direction:column;gap:8px;}
+.btn-action{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:14px 20px;border-radius:14px;
+  font-family:'Black Han Sans',sans-serif;font-size:15px;letter-spacing:1px;
+  cursor:pointer;border:none;text-decoration:none;
+  transition:transform .1s,box-shadow .1s;
+}
+.btn-action:active{transform:scale(.97);}
+.btn-primary{
+  background:var(--red);color:#fff;
+  box-shadow:0 4px 0 var(--red-dk),0 6px 16px rgba(232,48,42,.3);
+}
+.btn-secondary{
+  background:#fff;color:var(--red);
+  border:2px solid var(--red);
+}
+.btn-ghost{
+  background:rgba(232,48,42,.07);color:#888;
+  font-size:13px;
+}
+.btn-action-icon{font-size:18px;}
+
+/* ── AGAIN BUTTON (standalone) ── */
+.btn-again-wrap{width:100%;max-width:420px;}
+.btn-again{
+  width:100%;padding:14px;border-radius:14px;
+  background:rgba(232,48,42,.1);color:var(--red);
+  border:2px solid rgba(232,48,42,.25);
+  font-family:'Black Han Sans',sans-serif;font-size:16px;letter-spacing:1px;
+  cursor:pointer;transition:all .2s;
+}
+.btn-again:hover{background:rgba(232,48,42,.15);}
+</style>
+</head>
+<body>
+
+<canvas id="cvcv"></canvas>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo-row">
+    <div class="logo-cat">🐱</div>
+    <div class="logo-txt"><span class="b">Beat</span>Cat</div>
+  </div>
+  <div class="hdr-sub">MBTI 슬롯 룰렛</div>
+</div>
+
+<div class="body">
+
+  <!-- SLOT MACHINE -->
+  <div class="machine">
+
+    <div class="machine-hdr">
+      <div class="machine-light"></div>
+      <div class="machine-title">🎰 MBTI SLOT</div>
+      <div class="machine-light r"></div>
+    </div>
+
+    <!-- Reel window -->
+    <div class="slot-window">
+      <div class="reel-highlight"></div>
+      <div class="reels-row">
+        <div class="reel" id="reel0"></div>
+        <div class="reel" id="reel1"></div>
+        <div class="reel" id="reel2"></div>
+        <div class="reel" id="reel3"></div>
+      </div>
+    </div>
+
+    <div class="reel-labels">
+      <div class="reel-label">E · I</div>
+      <div class="reel-label">S · N</div>
+      <div class="reel-label">T · F</div>
+      <div class="reel-label">J · P</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn-spin" id="btnSpin">🎰 &nbsp;START SPIN</button>
+
+      <div style="width:100%;max-width:320px;">
+        <div class="stop-row">
+          <button class="btn-stop" id="stop0" onclick="stopReel(0)">STOP<br><span style="font-size:10px">E·I</span></button>
+          <button class="btn-stop" id="stop1" onclick="stopReel(1)">STOP<br><span style="font-size:10px">S·N</span></button>
+          <button class="btn-stop" id="stop2" onclick="stopReel(2)">STOP<br><span style="font-size:10px">T·F</span></button>
+          <button class="btn-stop" id="stop3" onclick="stopReel(3)">STOP<br><span style="font-size:10px">J·P</span></button>
+        </div>
+      </div>
+
+      <div class="status-bar" id="statusBar">🐱 START를 눌러 슬롯을 돌려보세요!</div>
+    </div>
+  </div>
+
+  <!-- RESULT (hidden initially) -->
+  <div class="result-wrap" id="resultWrap" style="display:none;"></div>
+
+  <!-- AGAIN -->
+  <div class="btn-again-wrap" id="againWrap" style="display:none;">
+    <button class="btn-again" onclick="resetAll()">🔄 &nbsp;다시 돌리기</button>
+  </div>
+
+</div><!-- /body -->
+
+<script>
+/* ══ DATA ══ */
+const PAIRS=[
+  {letters:['E','I'], colors:['#FF8070','#FF8070'], label:'E·I', theme:'rc-ei'},
+  {letters:['S','N'], colors:['#FFE033','#FFE033'], label:'S·N', theme:'rc-sn'},
+  {letters:['T','F'], colors:['#70B4FF','#70B4FF'], label:'T·F', theme:'rc-tf'},
+  {letters:['J','P'], colors:['#70E8A8','#70E8A8'], label:'J·P', theme:'rc-jp'},
+];
+
+const MBTI_DATA={
+  INTJ:{icon:'🎯',name:'전략가',activity:'격파 뒤 단어 꺼내기',quote:'"Step 1 clear! Next mission!"',desc:'단계형 전략 수업 — 블록 격파 뒤 숨겨진 단어 카드를 꺼내는 미션 게임'},
+  INTP:{icon:'🤔',name:'사색가',activity:'Why vs Because',quote:'"Why? → Because!"',desc:'질문-이유 구조 게임 — WHY 팀 vs BECAUSE 팀으로 나뉘어 논리적으로 토론'},
+  ENTJ:{icon:'❗',name:'지휘관',activity:'문장부호 팀 미션',quote:'"This is a question!"',desc:'역할 기반 참여 — ❗❓ 역할 팀 미션으로 문장 구조를 익히는 게임'},
+  ENTP:{icon:'💡',name:'토론자',activity:'아인슈타인 게임',quote:'"Wait! I have an idea!"',desc:'규칙 변화 & 창의성 — CVC 릴레이 + 규칙 변경으로 창의력을 키우는 활동'},
+  INFJ:{icon:'🎬',name:'안내자',activity:'오스카상 역할극',quote:'"You are the main character!"',desc:'몰입 역할극 — 오스카상 역할 미션으로 깊이 있는 캐릭터 표현 활동'},
+  INFP:{icon:'🌈',name:'몽상가',activity:'Copy Me',quote:'"Show me your way!"',desc:'창의 표현 — 나만의 단어 동작을 만들고 친구들과 함께 따라하는 활동'},
+  ENFJ:{icon:'🤝',name:'선도자',activity:'마칭 팀워크',quote:'"Let\'s do it together!"',desc:'협력 발화 — 2인3각/5인6각으로 함께 움직이며 문장을 말하는 활동'},
+  ENFP:{icon:'🔥',name:'활력가',activity:'Better than Me',quote:'"Better than me!"',desc:'에너지 확장 — 리액션 업 챌린지로 점점 더 크게 반응하며 표현력 강화'},
+  ISTJ:{icon:'🤫',name:'관리자',activity:'Whisper and Say',quote:'"Listen carefully…"',desc:'정확 전달 — 귓속말로 정확하게 전달하고 크게 말하는 체인 게임'},
+  ISFJ:{icon:'🌊',name:'보호자',activity:'중력 vs 무중력',quote:'"Slow… slower…"',desc:'속도 조절 — 중력과 무중력 상황을 표현하며 속도 감각을 익히는 활동'},
+  ESTJ:{icon:'🎖️',name:'통솔자',activity:'군대 룰 게임',quote:'"Follow the rules!"',desc:'규칙 & 통제 — 군대 BGM에 맞춰 구령에 따라 정확하게 행동하는 게임'},
+  ESFJ:{icon:'👏',name:'지지자',activity:'Good Job 챈트',quote:'"Oh~ Oh~ Good job!!"',desc:'칭찬 & 분위기 — 박수 챈트로 서로를 칭찬하며 긍정 에너지를 나누는 활동'},
+  ISTP:{icon:'✋',name:'장인',activity:'파트너 손바닥 쓰기',quote:'"Feel and guess!"',desc:'촉각 체험 — 파트너 손바닥에 단어를 써서 맞추는 감각 활동'},
+  ISFP:{icon:'🎨',name:'예술가',activity:'감정선 이동',quote:'"Feel it and move!"',desc:'감정 표현 — 감정선을 따라 이동하며 몸으로 표현하는 창의 활동'},
+  ESTP:{icon:'🏃',name:'사업가',activity:'레이스 게임',quote:'"Go! Go! Friend!!"',desc:'속도 경쟁 — 발화 후 레이스로 빠르게 말하고 달리는 에너지 넘치는 게임'},
+  ESFP:{icon:'⭐',name:'연예인',activity:'골 세리머니',quote:'"Show your moment!"',desc:'퍼포먼스 — 나만의 골 세리머니를 만들어 무대에서 선보이는 쇼타임!'},
+};
+
+// Activity card links — fill in your actual URLs
+const ACTIVITY_LINKS={
+  INTJ:'https://dreamy-moonbeam-e90815.netlify.app/', INTP:'https://dreamy-moonbeam-e90815.netlify.app/', ENTJ:'https://dreamy-moonbeam-e90815.netlify.app/', ENTP:'https://dreamy-moonbeam-e90815.netlify.app/',
+  INFJ:'https://dreamy-moonbeam-e90815.netlify.app/', INFP:'https://dreamy-moonbeam-e90815.netlify.app/', ENFJ:'https://dreamy-moonbeam-e90815.netlify.app/', ENFP:'https://dreamy-moonbeam-e90815.netlify.app/',
+  ISTJ:'https://dreamy-moonbeam-e90815.netlify.app/', ISFJ:'https://dreamy-moonbeam-e90815.netlify.app/', ESTJ:'https://dreamy-moonbeam-e90815.netlify.app/', ESFJ:'https://dreamy-moonbeam-e90815.netlify.app/',
+  ISTP:'https://dreamy-moonbeam-e90815.netlify.app/', ISFP:'https://dreamy-moonbeam-e90815.netlify.app/', ESTP:'https://dreamy-moonbeam-e90815.netlify.app/', ESFP:'https://dreamy-moonbeam-e90815.netlify.app/',
+};
+
+/* ══ REEL SETUP ══ */
+const SLOT_H=88;
+// Each reel strips — 20 items tall for smooth infinite scroll
+const REEL_COUNT=20;
+
+let reelStrips=[null,null,null,null]; // DOM refs to strip divs
+let reelOffsets=[0,0,0,0];  // current px offset
+let reelTargets=[0,0,0,0];  // target px
+let reelSpeeds=[0,0,0,0];   // px/frame
+let reelSpinning=[false,false,false,false];
+let reelResults=['','','',''];
+let stopQueue=[false,false,false,false];
+let rafs=[null,null,null,null];
+
+function buildReel(idx){
+  const pair=PAIRS[idx];
+  const strip=document.createElement('div');
+  strip.className='reel-strip';
+  strip.id='strip'+idx;
+  // Build N items alternating letters
+  for(let i=0;i<REEL_COUNT;i++){
+    const letter=pair.letters[i%2];
+    const item=document.createElement('div');
+    item.className=`reel-item ${pair.theme}`;
+    item.innerHTML=`<div class="reel-letter">${letter}</div><div class="reel-pair">${pair.label}</div>`;
+    strip.appendChild(item);
+  }
+  document.getElementById('reel'+idx).appendChild(strip);
+  reelStrips[idx]=strip;
+  // Start centered
+  const startY=-(SLOT_H*2); // show item index 2 in center
+  strip.style.transform=`translateY(${startY}px)`;
+  reelOffsets[idx]=startY;
+}
+
+/* ══ SPIN LOGIC ══ */
+let phase='idle'; // idle | spinning | done
+let stoppedCount=0;
+
+function startAllReels(){
+  phase='spinning';stoppedCount=0;
+  reelResults=['','','',''];
+
+  // UI
+  document.getElementById('btnSpin').disabled=true;
+  document.getElementById('statusBar').className='status-bar spinning';
+  document.getElementById('statusBar').textContent='🎰 슬롯이 돌아가고 있어요! STOP을 눌러 멈추세요!';
+  document.getElementById('resultWrap').style.display='none';
+  document.getElementById('againWrap').style.display='none';
+
+  for(let i=0;i<4;i++){
+    stopQueue[i]=false;
+    reelSpinning[i]=true;
+    // Random speed 14-20 px/frame
+    reelSpeeds[i]=14+Math.random()*6;
+    animateReel(i);
+  }
+
+  // Activate stop buttons sequentially
+  activateStop(0);
+}
+
+function activateStop(idx){
+  if(idx>=4)return;
+  const btn=document.getElementById('stop'+idx);
+  btn.className='btn-stop active';
+}
+
+function stopReel(idx){
+  if(!reelSpinning[idx])return;
+  if(document.getElementById('stop'+idx).className.indexOf('active')<0)return;
+
+  // Mark for stop
+  stopQueue[idx]=true;
+  document.getElementById('stop'+idx).className='btn-stop done';
+
+  // Update status
+  const labels=['E/I','S/N','T/F','J/P'];
+  document.getElementById('statusBar').textContent=`⏹ ${labels[idx]} 멈추는 중...`;
+}
+
+function animateReel(idx){
+  if(!reelSpinning[idx])return;
+  const strip=reelStrips[idx];
+  const totalH=SLOT_H*REEL_COUNT;
+
+  // Advance position
+  reelOffsets[idx]-=reelSpeeds[idx];
+
+  // Wrap around for infinite scroll
+  if(reelOffsets[idx]<-(totalH-SLOT_H*3)){
+    reelOffsets[idx]+=totalH;
+  }
+
+  if(stopQueue[idx]){
+    // Decelerate
+    reelSpeeds[idx]*=0.88;
+    if(reelSpeeds[idx]<0.5){
+      // Snap to nearest slot
+      snapReel(idx);
+      return;
+    }
+  }
+
+  strip.style.transform=`translateY(${reelOffsets[idx]}px)`;
+  rafs[idx]=requestAnimationFrame(()=>animateReel(idx));
+}
+
+function snapReel(idx){
+  const strip=reelStrips[idx];
+  const totalH=SLOT_H*REEL_COUNT;
+  // Normalize offset
+  let off=reelOffsets[idx];
+  off=((off%totalH)-totalH)%totalH; // always negative
+  // Find nearest slot boundary
+  const slotIdx=Math.round(-off/SLOT_H);
+  const snapY=-(slotIdx*SLOT_H);
+
+  // Animate snap
+  let cur=off;
+  const target=snapY;
+  function snapAnim(){
+    cur+=(target-cur)*0.25;
+    if(Math.abs(cur-target)<0.3){
+      cur=target;
+      strip.style.transform=`translateY(${cur}px)`;
+      reelOffsets[idx]=cur;
+      reelSpinning[idx]=false;
+      // Read letter
+      const itemIdx=((slotIdx%REEL_COUNT)+REEL_COUNT)%REEL_COUNT;
+      const pair=PAIRS[idx];
+      reelResults[idx]=pair.letters[itemIdx%2];
+      onReelStopped(idx);
+      return;
+    }
+    strip.style.transform=`translateY(${cur}px)`;
+    reelOffsets[idx]=cur;
+    requestAnimationFrame(snapAnim);
+  }
+  snapAnim();
+}
+
+function onReelStopped(idx){
+  stoppedCount++;
+
+  // Flash effect on stopped reel
+  const reel=document.getElementById('reel'+idx);
+  reel.style.transition='background .15s';
+  reel.style.background='rgba(255,224,51,.12)';
+  setTimeout(()=>{reel.style.background='';},300);
+
+  // Sound-ish: activate next stop button
+  if(idx<3) activateStop(idx+1);
+
+  const labels=['E/I 결정!','S/N 결정!','T/F 결정!','J/P 결정! 🎉'];
+  document.getElementById('statusBar').textContent=`✅ ${labels[idx]}`;
+
+  if(stoppedCount===4){
+    setTimeout(showResult,600);
+  }
+}
+
+/* ══ RESULT ══ */
+function showResult(){
+  const mbti=reelResults.join('');
+  const data=MBTI_DATA[mbti]||{icon:'🐱',name:'특별형',activity:mbti+' 활동',quote:'"나만의 스타일!"',desc:'특별한 나만의 MBTI 수업 활동!'};
+  const link=ACTIVITY_LINKS[mbti]||'#';
+
+  phase='done';
+  document.getElementById('statusBar').className='status-bar done';
+  document.getElementById('statusBar').textContent=`🎊 ${mbti} — ${data.name}!`;
+
+  // Build chips
+  const chipColors=[
+    {bg:'rgba(255,128,112,.2)',color:'#FF8070'},
+    {bg:'rgba(255,224,51,.2)', color:'#C8A000'},
+    {bg:'rgba(112,180,255,.2)',color:'#4090E0'},
+    {bg:'rgba(112,232,168,.2)',color:'#0F9050'},
+  ];
+  const chipsHtml=reelResults.map((l,i)=>
+    `<div class="result-chip" style="background:${chipColors[i].bg};color:${chipColors[i].color};border-color:${chipColors[i].color}40">${l}</div>`
+  ).join('');
+
+  document.getElementById('resultWrap').innerHTML=`
+    <div class="result-card">
+      <div class="result-top">
+        <div class="result-mbti">${mbti}</div>
+        <div class="result-type-name">${data.name} · ${data.icon}</div>
+        <div class="result-chips">${chipsHtml}</div>
+      </div>
+      <div class="result-body">
+        <div class="result-icon">${data.icon}</div>
+        <div class="result-activity">${data.activity}</div>
+        <div class="result-quote">${data.quote}</div>
+        <div class="result-desc">${data.desc}</div>
+        <div class="result-actions">
+          <button class="btn-action btn-primary" onclick="window.open('${link}','_blank')">
+            <span class="btn-action-icon">🎴</span>
+            활동 카드 보러가기
+          </button>
+
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('resultWrap').style.display='block';
+  document.getElementById('againWrap').style.display='block';
+  startConfetti();
+}
+
+function copyResult(mbti,activity){
+  const txt=`나의 BeatCat MBTI 수업 활동:\n${mbti} — ${activity}\n🐱 BeatCat MBTI Slot`;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn=event.target.closest('.btn-action');
+    const orig=btn.innerHTML;
+    btn.innerHTML='<span class="btn-action-icon">✅</span> 복사됐어요!';
+    setTimeout(()=>btn.innerHTML=orig,2000);
+  }).catch(()=>{});
+}
+
+function shareResult(mbti,activity){
+  if(navigator.share){
+    navigator.share({title:'BeatCat MBTI 슬롯',text:`나의 수업 유형: ${mbti} — ${activity}`,url:window.location.href});
+  } else {
+    copyResult(mbti,activity);
+  }
+}
+
+/* ══ RESET ══ */
+function resetAll(){
+  phase='idle';stoppedCount=0;
+  for(let i=0;i<4;i++){
+    reelSpinning[i]=false;
+    stopQueue[i]=false;
+    if(rafs[i])cancelAnimationFrame(rafs[i]);
+    document.getElementById('stop'+i).className='btn-stop';
+    document.getElementById('reel'+i).style.background='';
+  }
+  document.getElementById('btnSpin').disabled=false;
+  document.getElementById('statusBar').className='status-bar';
+  document.getElementById('statusBar').textContent='🐱 START를 눌러 슬롯을 돌려보세요!';
+  document.getElementById('resultWrap').style.display='none';
+  document.getElementById('againWrap').style.display='none';
+  stopConfetti();
+}
+
+/* ══ CONFETTI ══ */
+const cv=document.getElementById('cvcv');
+const cx=cv.getContext('2d');
+let pieces=[],cfRAF=null;
+function startConfetti(){
+  cv.width=innerWidth;cv.height=innerHeight;
+  pieces=[];
+  const cols=['#E8302A','#FFE033','#4090E0','#16A34A','#FF6B5A','#FFD700','#A855F7'];
+  for(let i=0;i<100;i++) pieces.push({
+    x:Math.random()*cv.width,y:-20-Math.random()*200,
+    w:7+Math.random()*7,h:5+Math.random()*5,
+    color:cols[i%cols.length],rot:Math.random()*360,
+    vx:(Math.random()-.5)*5,vy:3+Math.random()*5,vr:(Math.random()-.5)*10,
+  });
+  if(cfRAF)cancelAnimationFrame(cfRAF);animCF();
+  setTimeout(stopConfetti,4000);
+}
+function animCF(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  pieces.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;
+    if(p.y>cv.height+20)p.y=-20;
+    cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);
+    cx.fillStyle=p.color;cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);cx.restore();
+  });
+  cfRAF=requestAnimationFrame(animCF);
+}
+function stopConfetti(){
+  if(cfRAF)cancelAnimationFrame(cfRAF);cx.clearRect(0,0,cv.width,cv.height);
+}
+
+/* ══ INIT ══ */
+for(let i=0;i<4;i++) buildReel(i);
+document.getElementById('btnSpin').addEventListener('click',startAllReels);
+</script>
+</body>
+</html>
