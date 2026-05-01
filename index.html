@@ -1,0 +1,380 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{--red:#E8302A;--red-dk:#B5201A;--red-lt:#FF6B5A;--yellow:#FFE033;--slot-h:84px;}
+.wrap{background:#FFF5F4;font-family:'Noto Sans KR',sans-serif;padding-bottom:32px;}
+.hdr{background:linear-gradient(180deg,#FF4A42,#E8302A);padding:14px 20px 12px;text-align:center;box-shadow:0 4px 0 var(--red-dk);position:relative;}
+.hdr::after{content:'';position:absolute;bottom:-13px;left:0;right:0;height:13px;background:var(--red);clip-path:ellipse(52% 100% at 50% 0%);}
+.logo-row{display:flex;align-items:center;justify-content:center;gap:8px;}
+.logo-cat{width:34px;height:34px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 2px 6px rgba(0,0,0,.2);}
+.logo-txt{font-family:'Black Han Sans',sans-serif;font-size:22px;color:#fff;letter-spacing:1px;}
+.logo-txt .b{color:var(--yellow);}
+.hdr-sub{font-size:10px;color:rgba(255,255,255,.7);letter-spacing:2px;margin-top:2px;}
+.body{padding:28px 14px 8px;display:flex;flex-direction:column;align-items:center;gap:18px;}
+.machine{width:100%;max-width:400px;background:linear-gradient(160deg,#2A0E0C,#1A0604);border-radius:24px;border:4px solid #5A2018;box-shadow:0 12px 40px rgba(0,0,0,.5);overflow:hidden;position:relative;}
+.machine::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--yellow),transparent);animation:glow 3s linear infinite;}
+@keyframes glow{0%,100%{opacity:.4;}50%{opacity:1;}}
+.mhdr{background:linear-gradient(180deg,#3A1208,#2A0A06);padding:13px 20px 11px;text-align:center;border-bottom:2px solid #5A2018;display:flex;align-items:center;justify-content:center;gap:10px;}
+.mtitle{font-family:'Black Han Sans',sans-serif;font-size:18px;letter-spacing:3px;background:linear-gradient(135deg,var(--yellow),#FFF0A0,var(--yellow));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.mlight{width:9px;height:9px;border-radius:50%;background:var(--yellow);box-shadow:0 0 8px var(--yellow);animation:blink 1.2s ease-in-out infinite;}
+.mlight.r{background:var(--red-lt);box-shadow:0 0 8px var(--red-lt);}
+@keyframes blink{0%,100%{opacity:.4;}50%{opacity:1;}}
+.slot-win{margin:16px 14px;background:#0A0302;border-radius:14px;border:3px solid #3A1008;box-shadow:inset 0 4px 20px rgba(0,0,0,.8);overflow:hidden;position:relative;}
+.slot-win::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:15;background:linear-gradient(180deg,rgba(10,3,2,.85) 0%,transparent 26%,transparent 74%,rgba(10,3,2,.85) 100%);}
+.slot-win::after{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.12),rgba(0,0,0,.12) 1px,transparent 1px,transparent 3px);z-index:10;}
+.reels-row{display:flex;height:calc(var(--slot-h) + 4px);position:relative;}
+.reel-hl{position:absolute;top:50%;left:7px;right:7px;height:var(--slot-h);transform:translateY(-50%);border:3px solid var(--yellow);border-radius:7px;box-shadow:0 0 14px rgba(255,224,51,.55),inset 0 0 16px rgba(255,224,51,.06);pointer-events:none;z-index:20;}
+.reel{flex:1;overflow:hidden;position:relative;border-right:1px solid #2A0A06;}
+.reel:last-child{border-right:none;}
+.reel-strip{display:flex;flex-direction:column;will-change:transform;}
+.reel-item{height:var(--slot-h);flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;user-select:none;}
+.reel-ltr{font-family:'Black Han Sans',sans-serif;font-size:38px;line-height:1;}
+.reel-sub{font-size:8px;font-weight:700;letter-spacing:1px;opacity:.45;text-transform:uppercase;}
+.rc0 .reel-ltr{color:#FF8070;text-shadow:0 0 10px rgba(255,128,112,.4);}
+.rc1 .reel-ltr{color:#FFE033;text-shadow:0 0 10px rgba(255,224,51,.4);}
+.rc2 .reel-ltr{color:#70B4FF;text-shadow:0 0 10px rgba(112,180,255,.4);}
+.rc3 .reel-ltr{color:#70E8A8;text-shadow:0 0 10px rgba(112,232,168,.4);}
+.rlabels{display:flex;margin:0 14px 8px;}
+.rlabel{flex:1;text-align:center;font-size:8px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,.28);text-transform:uppercase;}
+.controls{padding:12px 18px 18px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+.btn-spin{width:100%;max-width:260px;padding:15px;border-radius:99px;background:linear-gradient(180deg,var(--yellow),#D4B800);border:none;border-bottom:5px solid #A08800;font-family:'Black Han Sans',sans-serif;font-size:19px;letter-spacing:2px;color:#3A2000;cursor:pointer;box-shadow:0 6px 20px rgba(255,224,51,.35);position:relative;overflow:hidden;transition:transform .1s,border-bottom-width .1s;}
+.btn-spin::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);animation:shine 2.5s ease-in-out infinite;}
+@keyframes shine{0%{left:-100%;}100%{left:200%;}}
+.btn-spin:active{transform:translateY(3px);border-bottom-width:2px;}
+.btn-spin:disabled{background:linear-gradient(180deg,#888,#555);border-bottom-color:#333;color:#aaa;cursor:default;box-shadow:none;}
+.btn-spin:disabled::before{display:none;}
+.stop-row{display:flex;gap:7px;width:100%;max-width:300px;}
+.btn-stop{flex:1;padding:11px 3px;border-radius:11px;background:linear-gradient(180deg,#FF6B5A,var(--red));border:none;border-bottom:4px solid var(--red-dk);font-family:'Black Han Sans',sans-serif;font-size:12px;letter-spacing:.5px;color:#fff;cursor:pointer;box-shadow:0 4px 12px rgba(232,48,42,.4);transition:transform .1s,border-bottom-width .1s,opacity .2s;opacity:.3;pointer-events:none;}
+.btn-stop.active{opacity:1;pointer-events:auto;animation:ps .6s ease-in-out infinite;}
+.btn-stop.done{opacity:.22;pointer-events:none;background:linear-gradient(180deg,#555,#333);border-bottom-color:#222;box-shadow:none;animation:none;}
+.btn-stop:active{transform:translateY(2px);border-bottom-width:2px;}
+@keyframes ps{0%,100%{box-shadow:0 4px 12px rgba(232,48,42,.4);}50%{box-shadow:0 4px 22px rgba(232,48,42,.9);}}
+.status{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:7px 14px;font-size:11px;color:rgba(255,255,255,.45);letter-spacing:1px;text-align:center;min-height:34px;transition:all .3s;}
+.status.spin{color:var(--yellow);border-color:rgba(255,224,51,.3);}
+.status.done{color:#70E8A8;border-color:rgba(112,232,168,.3);}
+
+/* RESULT CARD */
+.res-wrap{width:100%;max-width:400px;animation:su .5s cubic-bezier(.34,1.3,.64,1);}
+@keyframes su{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+.res-card{background:#fff;border-radius:22px;border:3px solid var(--red);box-shadow:0 8px 30px rgba(232,48,42,.16);overflow:hidden;}
+.res-top{background:linear-gradient(135deg,var(--red),#FF6B5A);padding:18px 18px 14px;text-align:center;position:relative;}
+.res-top::after{content:'';position:absolute;bottom:-11px;left:0;right:0;height:11px;background:linear-gradient(135deg,var(--red),#FF6B5A);clip-path:ellipse(52% 100% at 50% 0%);}
+.res-mbti{font-family:'Black Han Sans',sans-serif;font-size:50px;letter-spacing:5px;color:#fff;line-height:1;text-shadow:0 4px 10px rgba(0,0,0,.2);animation:pi .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes pi{from{transform:scale(.5);opacity:0;}to{transform:scale(1);opacity:1;}}
+.res-tname{font-size:11px;color:rgba(255,255,255,.8);letter-spacing:3px;margin-top:3px;font-weight:700;}
+.res-chips{display:flex;gap:5px;justify-content:center;margin-top:9px;}
+.res-chip{padding:3px 11px;border-radius:99px;font-family:'Black Han Sans',sans-serif;font-size:13px;background:rgba(255,255,255,.25);color:#fff;border:1.5px solid rgba(255,255,255,.4);}
+.res-body{padding:24px 18px 18px;}
+.res-icon{font-size:40px;text-align:center;margin-bottom:7px;}
+.res-act{font-family:'Black Han Sans',sans-serif;font-size:20px;color:#1A0A08;text-align:center;margin-bottom:5px;}
+.res-quote{font-size:12px;color:var(--red);font-weight:700;text-align:center;margin-bottom:11px;}
+.res-desc{font-size:12px;color:#555;line-height:1.7;background:#FFF5F4;border-radius:11px;padding:11px 13px;border-left:3px solid var(--red);margin-bottom:14px;}
+
+/* PASSWORD BOX */
+.pw-box{background:#FFF5F4;border:2px solid #F0D0CF;border-radius:14px;padding:14px 16px;margin-bottom:14px;}
+.pw-label{font-size:11px;font-weight:700;color:var(--red);letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.pw-row{display:flex;gap:8px;}
+.pw-input{flex:1;padding:11px 14px;border-radius:10px;border:2px solid #E0C0BF;font-size:14px;font-family:'Noto Sans KR',sans-serif;font-weight:700;letter-spacing:2px;outline:none;transition:border-color .2s;background:#fff;}
+.pw-input:focus{border-color:var(--red);}
+.pw-input.error{border-color:#FF4444;animation:shake .3s ease;}
+.pw-input.ok{border-color:#22C55E;background:#F0FFF4;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.pw-hint{font-size:10px;color:#AAA;margin-top:5px;letter-spacing:1px;}
+.pw-err{font-size:11px;color:#FF4444;font-weight:700;margin-top:5px;display:none;}
+.btn-unlock{padding:11px 18px;border-radius:10px;background:var(--red);color:#fff;border:none;border-bottom:3px solid var(--red-dk);font-family:'Black Han Sans',sans-serif;font-size:14px;cursor:pointer;white-space:nowrap;transition:transform .1s;}
+.btn-unlock:active{transform:translateY(2px);}
+
+.btn-go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:13px;background:var(--red);color:#fff;border:none;border-bottom:4px solid var(--red-dk);font-family:'Black Han Sans',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 16px rgba(232,48,42,.35);transition:transform .1s;}
+.btn-go:active{transform:scale(.97);}
+.btn-go:disabled{background:#CCC;border-bottom-color:#AAA;cursor:default;box-shadow:none;}
+
+.btn-again-wrap{width:100%;max-width:400px;}
+.btn-again{width:100%;padding:13px;border-radius:13px;background:rgba(232,48,42,.09);color:var(--red);border:2px solid rgba(232,48,42,.22);font-family:'Black Han Sans',sans-serif;font-size:15px;letter-spacing:1px;cursor:pointer;}
+</style>
+
+<div class="wrap">
+<div class="hdr">
+  <div class="logo-row">
+    <div class="logo-cat">🐱</div>
+    <div class="logo-txt"><span class="b">Beat</span>Cat</div>
+  </div>
+  <div class="hdr-sub">MBTI 슬롯 룰렛</div>
+</div>
+
+<div class="body">
+  <div class="machine">
+    <div class="mhdr">
+      <div class="mlight"></div>
+      <div class="mtitle">🎰 MBTI SLOT</div>
+      <div class="mlight r"></div>
+    </div>
+    <div class="slot-win">
+      <div class="reel-hl"></div>
+      <div class="reels-row">
+        <div class="reel" id="r0"></div>
+        <div class="reel" id="r1"></div>
+        <div class="reel" id="r2"></div>
+        <div class="reel" id="r3"></div>
+      </div>
+    </div>
+    <div class="rlabels">
+      <div class="rlabel">E · I</div>
+      <div class="rlabel">S · N</div>
+      <div class="rlabel">T · F</div>
+      <div class="rlabel">J · P</div>
+    </div>
+    <div class="controls">
+      <button class="btn-spin" id="btnSpin">🎰 START SPIN</button>
+      <div class="stop-row">
+        <button class="btn-stop" id="s0" onclick="stopReel(0)">STOP<br><span style="font-size:9px">E·I</span></button>
+        <button class="btn-stop" id="s1" onclick="stopReel(1)">STOP<br><span style="font-size:9px">S·N</span></button>
+        <button class="btn-stop" id="s2" onclick="stopReel(2)">STOP<br><span style="font-size:9px">T·F</span></button>
+        <button class="btn-stop" id="s3" onclick="stopReel(3)">STOP<br><span style="font-size:9px">J·P</span></button>
+      </div>
+      <div class="status" id="status">🐱 START를 눌러 슬롯을 돌려보세요!</div>
+    </div>
+  </div>
+
+  <div id="resWrap" style="display:none;" class="res-wrap"></div>
+  <div id="againWrap" style="display:none;" class="btn-again-wrap">
+    <button class="btn-again" onclick="resetAll()">🔄 다시 돌리기</button>
+  </div>
+</div>
+</div>
+
+<script>
+const PAIRS=[
+  {letters:['E','I'],label:'E·I'},
+  {letters:['S','N'],label:'S·N'},
+  {letters:['T','F'],label:'T·F'},
+  {letters:['J','P'],label:'J·P'},
+];
+const MD={
+  INTJ:{icon:'🎯',name:'전략가',act:'격파 뒤 단어 꺼내기',q:'"Step 1 clear! Next mission!"',desc:'단계형 전략 수업 — 블록 격파 뒤 숨겨진 단어 카드를 꺼내는 미션 게임'},
+  INTP:{icon:'🤔',name:'사색가',act:'Why vs Because',q:'"Why? → Because!"',desc:'질문-이유 구조 게임 — WHY 팀 vs BECAUSE 팀으로 나뉘어 논리적으로 토론'},
+  ENTJ:{icon:'❗',name:'지휘관',act:'문장부호 팀 미션',q:'"This is a question!"',desc:'역할 기반 참여 — ❗❓ 역할 팀 미션으로 문장 구조를 익히는 게임'},
+  ENTP:{icon:'💡',name:'토론자',act:'아인슈타인 게임',q:'"Wait! I have an idea!"',desc:'규칙 변화 & 창의성 — CVC 릴레이 + 규칙 변경으로 창의력을 키우는 활동'},
+  INFJ:{icon:'🎬',name:'안내자',act:'오스카상 역할극',q:'"You are the main character!"',desc:'몰입 역할극 — 오스카상 역할 미션으로 깊이 있는 캐릭터 표현 활동'},
+  INFP:{icon:'🌈',name:'몽상가',act:'Copy Me',q:'"Show me your way!"',desc:'창의 표현 — 나만의 단어 동작을 만들고 친구들과 함께 따라하는 활동'},
+  ENFJ:{icon:'🤝',name:'선도자',act:'마칭 팀워크',q:'"Let\'s do it together!"',desc:'협력 발화 — 2인3각/5인6각으로 함께 움직이며 문장을 말하는 활동'},
+  ENFP:{icon:'🔥',name:'활력가',act:'Better than Me',q:'"Better than me!"',desc:'에너지 확장 — 리액션 업 챌린지로 점점 더 크게 반응하며 표현력 강화'},
+  ISTJ:{icon:'🤫',name:'관리자',act:'Whisper and Say',q:'"Listen carefully…"',desc:'정확 전달 — 귓속말로 정확하게 전달하고 크게 말하는 체인 게임'},
+  ISFJ:{icon:'🌊',name:'보호자',act:'중력 vs 무중력',q:'"Slow… slower…"',desc:'속도 조절 — 중력과 무중력 상황을 표현하며 속도 감각을 익히는 활동'},
+  ESTJ:{icon:'🎖️',name:'통솔자',act:'군대 룰 게임',q:'"Follow the rules!"',desc:'규칙 & 통제 — 군대 BGM에 맞춰 구령에 따라 정확하게 행동하는 게임'},
+  ESFJ:{icon:'👏',name:'지지자',act:'Good Job 챈트',q:'"Oh~ Oh~ Good job!!"',desc:'칭찬 & 분위기 — 박수 챈트로 서로를 칭찬하며 긍정 에너지를 나누는 활동'},
+  ISTP:{icon:'✋',name:'장인',act:'파트너 손바닥 쓰기',q:'"Feel and guess!"',desc:'촉각 체험 — 파트너 손바닥에 단어를 써서 맞추는 감각 활동'},
+  ISFP:{icon:'🎨',name:'예술가',act:'감정선 이동',q:'"Feel it and move!"',desc:'감정 표현 — 감정선을 따라 이동하며 몸으로 표현하는 창의 활동'},
+  ESTP:{icon:'🏃',name:'사업가',act:'레이스 게임',q:'"Go! Go! Friend!!"',desc:'속도 경쟁 — 발화 후 레이스로 빠르게 말하고 달리는 에너지 넘치는 게임'},
+  ESFP:{icon:'⭐',name:'연예인',act:'골 세리머니',q:'"Show your moment!"',desc:'퍼포먼스 — 나만의 골 세리머니를 만들어 무대에서 선보이는 쇼타임!'},
+};
+const LINK='https://dreamy-moonbeam-e90815.netlify.app/';
+const PW='ABig-Cat';
+
+const SH=84,RC=20;
+let strips=[null,null,null,null],offs=[0,0,0,0],spds=[0,0,0,0];
+let spinning=[false,false,false,false],results=['','','',''],sq=[false,false,false,false];
+let stopped=0,phase='idle';
+
+function buildReel(i){
+  const p=PAIRS[i],s=document.createElement('div');
+  s.className='reel-strip';
+  for(let j=0;j<RC;j++){
+    const it=document.createElement('div');
+    it.className=`reel-item rc${i}`;
+    it.innerHTML=`<div class="reel-ltr">${p.letters[j%2]}</div><div class="reel-sub">${p.label}</div>`;
+    s.appendChild(it);
+  }
+  document.getElementById('r'+i).appendChild(s);
+  strips[i]=s;
+  const sy=-(SH*2);
+  s.style.transform=`translateY(${sy}px)`;
+  offs[i]=sy;
+}
+
+function startAllReels(){
+  if(phase==='spinning')return;
+  phase='spinning';stopped=0;results=['','','',''];
+  document.getElementById('btnSpin').disabled=true;
+  const st=document.getElementById('status');
+  st.className='status spin';
+  st.textContent='🎰 슬롯이 돌아가고 있어요! STOP을 눌러 멈추세요!';
+  document.getElementById('resWrap').style.display='none';
+  document.getElementById('againWrap').style.display='none';
+  for(let i=0;i<4;i++){sq[i]=false;spinning[i]=true;spds[i]=14+Math.random()*6;animReel(i);}
+  document.getElementById('s0').className='btn-stop active';
+}
+
+function stopReel(idx){
+  if(!spinning[idx]||sq[idx])return;
+  if(!document.getElementById('s'+idx).classList.contains('active'))return;
+  sq[idx]=true;
+  document.getElementById('s'+idx).className='btn-stop done';
+  const lb=['E/I','S/N','T/F','J/P'];
+  document.getElementById('status').textContent=`⏹ ${lb[idx]} 멈추는 중...`;
+}
+
+function animReel(i){
+  if(!spinning[i])return;
+  const s=strips[i],tot=SH*RC;
+  offs[i]-=spds[i];
+  if(offs[i]<-(tot-SH*3))offs[i]+=tot;
+  if(sq[i]){spds[i]*=0.88;if(spds[i]<0.5){snapReel(i);return;}}
+  s.style.transform=`translateY(${offs[i]}px)`;
+  requestAnimationFrame(()=>animReel(i));
+}
+
+function snapReel(i){
+  const s=strips[i],tot=SH*RC;
+  let off=offs[i];
+  off=((off%tot)-tot)%tot;
+  const si=Math.round(-off/SH),snapY=-(si*SH);
+  let cur=off;
+  function go(){
+    cur+=(snapY-cur)*0.25;
+    if(Math.abs(cur-snapY)<0.3){
+      cur=snapY;s.style.transform=`translateY(${cur}px)`;offs[i]=cur;spinning[i]=false;
+      const ii=((si%RC)+RC)%RC;
+      results[i]=PAIRS[i].letters[ii%2];
+      onStop(i);return;
+    }
+    s.style.transform=`translateY(${cur}px)`;offs[i]=cur;requestAnimationFrame(go);
+  }
+  go();
+}
+
+function onStop(i){
+  stopped++;
+  const r=document.getElementById('r'+i);
+  r.style.background='rgba(255,224,51,.1)';
+  setTimeout(()=>r.style.background='',300);
+  if(i<3)document.getElementById('s'+(i+1)).className='btn-stop active';
+  const lb=['E/I 결정! ✅','S/N 결정! ✅','T/F 결정! ✅','J/P 결정! 🎉'];
+  document.getElementById('status').textContent=lb[i];
+  if(stopped===4)setTimeout(showResult,600);
+}
+
+function showResult(){
+  const mbti=results.join('');
+  const d=MD[mbti]||{icon:'🐱',name:'특별형',act:mbti+' 활동',q:'"나만의 스타일!"',desc:'특별한 나만의 MBTI 수업 활동!'};
+  phase='done';
+  const st=document.getElementById('status');
+  st.className='status done';
+  st.textContent=`🎊 ${mbti} — ${d.name}!`;
+  const cc=[
+    {bg:'rgba(255,128,112,.2)',c:'#FF8070'},
+    {bg:'rgba(255,224,51,.2)',c:'#C8A000'},
+    {bg:'rgba(112,180,255,.2)',c:'#4090E0'},
+    {bg:'rgba(112,232,168,.2)',c:'#0F9050'},
+  ];
+  const chips=results.map((l,i)=>`<div class="res-chip" style="background:${cc[i].bg};color:${cc[i].c};border-color:${cc[i].c}50">${l}</div>`).join('');
+
+  document.getElementById('resWrap').innerHTML=`
+    <div class="res-card">
+      <div class="res-top">
+        <div class="res-mbti">${mbti}</div>
+        <div class="res-tname">${d.name} · ${d.icon}</div>
+        <div class="res-chips">${chips}</div>
+      </div>
+      <div class="res-body">
+        <div class="res-icon">${d.icon}</div>
+        <div class="res-act">${d.act}</div>
+        <div class="res-quote">${d.q}</div>
+        <div class="res-desc">${d.desc}</div>
+
+        <!-- 비밀번호 입력 -->
+        <div class="pw-box">
+          <div class="pw-label">🔑 활동 카드 비밀번호 입력</div>
+          <div class="pw-row">
+            <input class="pw-input" id="pwInput" type="password"
+              placeholder="비밀번호 입력..."
+              autocomplete="off" spellcheck="false"
+              onkeydown="if(event.key==='Enter')checkPw()"/>
+            <button class="btn-unlock" onclick="checkPw()">확인 →</button>
+          </div>
+          <div class="pw-hint">💡 선생님께 비밀번호를 받으세요</div>
+          <div class="pw-err" id="pwErr">❌ 비밀번호가 틀렸어요! 다시 시도해보세요.</div>
+        </div>
+
+        <button class="btn-go" id="btnGo" disabled onclick="goLink()">
+          🔒 비밀번호를 입력하면 활동 카드로 이동해요
+        </button>
+      </div>
+    </div>`;
+
+  document.getElementById('resWrap').style.display='block';
+  document.getElementById('againWrap').style.display='block';
+  confetti();
+}
+
+function checkPw(){
+  const inp=document.getElementById('pwInput');
+  const err=document.getElementById('pwErr');
+  const btn=document.getElementById('btnGo');
+  if(!inp)return;
+  const val=inp.value.trim();
+  if(val===PW){
+    inp.classList.remove('error');
+    inp.classList.add('ok');
+    err.style.display='none';
+    btn.disabled=false;
+    btn.textContent='🎴 활동 카드 보러가기';
+    btn.style.background='#22C55E';
+    btn.style.borderBottomColor='#15803D';
+  } else {
+    inp.classList.add('error');
+    inp.classList.remove('ok');
+    err.style.display='block';
+    btn.disabled=true;
+    // Remove error class after animation
+    setTimeout(()=>inp.classList.remove('error'),400);
+  }
+}
+
+function goLink(){
+  const a=document.createElement('a');
+  a.href=LINK;a.target='_blank';a.rel='noopener noreferrer';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+function resetAll(){
+  phase='idle';stopped=0;
+  for(let i=0;i<4;i++){
+    spinning[i]=false;sq[i]=false;
+    document.getElementById('s'+i).className='btn-stop';
+    document.getElementById('r'+i).style.background='';
+  }
+  document.getElementById('btnSpin').disabled=false;
+  document.getElementById('status').className='status';
+  document.getElementById('status').textContent='🐱 START를 눌러 슬롯을 돌려보세요!';
+  document.getElementById('resWrap').style.display='none';
+  document.getElementById('againWrap').style.display='none';
+}
+
+function confetti(){
+  const c=document.createElement('canvas');
+  c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:9999;';
+  document.body.appendChild(c);
+  c.width=innerWidth;c.height=innerHeight;
+  const cx=c.getContext('2d');
+  const cols=['#E8302A','#FFE033','#4090E0','#16A34A','#FF6B5A','#FFD700'];
+  const ps=Array.from({length:90},()=>({
+    x:Math.random()*c.width,y:-20-Math.random()*180,
+    w:6+Math.random()*7,h:4+Math.random()*5,
+    color:cols[Math.floor(Math.random()*cols.length)],
+    rot:Math.random()*360,vx:(Math.random()-.5)*5,vy:3+Math.random()*5,vr:(Math.random()-.5)*9,
+  }));
+  let raf;
+  function draw(){
+    cx.clearRect(0,0,c.width,c.height);
+    ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;if(p.y>c.height+20)p.y=-20;
+      cx.save();cx.translate(p.x,p.y);cx.rotate(p.rot*Math.PI/180);cx.fillStyle=p.color;cx.fillRect(-p.w/2,-p.h/2,p.w,p.h);cx.restore();});
+    raf=requestAnimationFrame(draw);
+  }
+  draw();
+  setTimeout(()=>{cancelAnimationFrame(raf);cx.clearRect(0,0,c.width,c.height);document.body.removeChild(c);},4000);
+}
+
+for(let i=0;i<4;i++)buildReel(i);
+document.getElementById('btnSpin').addEventListener('click',startAllReels);
+</script>
